@@ -12,20 +12,20 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
 
 @Component
 @Slf4j
@@ -45,8 +45,8 @@ public class TelegramBotService extends TelegramLongPollingBot {
             "Type /start to see a welcome message \n\n" +
             "Type /mydata to see data stored about yourself\n\n" +
             "Type /help to see this message again";
-    static final String RIGHT = "ВЕРНО "+"✅";
-    static final String WRONG = "НЕПРАВИЛЬНЫЙ "+ "❌";
+    static final String RIGHT = "ВЕРНО " + "✅";
+    static final String WRONG = "НЕПРАВИЛЬНЫЙ " + "❌";
 
 
     public TelegramBotService(TelegramBotConfig telegramBotConfig, EmailService emailService, QuestionRepository questionRepository) {
@@ -58,6 +58,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
         listOfCommands.add(new BotCommand("/start", "get a welcome message"));
         listOfCommands.add(new BotCommand("/register", " you this register"));
         listOfCommands.add(new BotCommand("/help", "info how to use this bot"));
+        listOfCommands.add(new BotCommand("/test", "test "));
         try {
             this.execute(new SetMyCommands(listOfCommands, new BotCommandScopeDefault(), null));
         } catch (TelegramApiException e) {
@@ -85,21 +86,20 @@ public class TelegramBotService extends TelegramLongPollingBot {
         if (update.hasMessage() && update.getMessage().hasText()) {
             String messageText2 = update.getMessage().getText();
             long chatId = update.getMessage().getChatId();
+            ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
             if (messageText2.equals("/test") || messageText2.equals("A") || messageText2.equals("B")
                     || messageText2.equals("C") || messageText2.equals("D")) {
-                test(chatId, update.getMessage().getChat().getFirstName(), messageText2);
-                buttonRep(chatId);
+                test(chatId, replyKeyboardMarkup, update.getMessage().getChat().getFirstName(), messageText2);
             }
         }
     }
 
-    public void buttonRep(Long chatId) {
+    public void buttonRep(Long chatId, ReplyKeyboardMarkup replyKeyboardMarkup) {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
         message.setParseMode(ParseMode.MARKDOWN);
         message.setText("Peaksoft Moscow");
 
-        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
         replyKeyboardMarkup.setResizeKeyboard(true);
         replyKeyboardMarkup.setSelective(true);
 
@@ -121,44 +121,44 @@ public class TelegramBotService extends TelegramLongPollingBot {
         }
     }
 
-    public void test(Long chatId, String userName, String text) {
+    public  void test(Long chatId, ReplyKeyboardMarkup replyKeyboardMarkup, String userName, String text) {
         User user = userRepository.findByUserName(userName).get();
-        Question question = questionRepository.findById((long) user.getCount()).get();
 
         if (user.getRandom() >= 1) {
-            test2(chatId, user, question, text);
+            test2(chatId, user, text);
         }
 
-        if (user.getCount() >= 1 && user.getCount() <= 20) {
+        if (user.getCount() >= 1 && user.getCount() <= 30) {
+            Question question = questionRepository.findById((long) user.getCount()).get();
+
             SendMessage message = new SendMessage();
             message.setChatId(chatId);
             message.setParseMode(ParseMode.MARKDOWN);
-            message.setText("Вопрос: " + user.getCount() + " " + test4(question, user));
+            message.setText("Вопрос: " + user.getCount() + ") " + test4(question, user)+"\n");
 
             user.setCount(user.getCount() + 1);
             userRepository.save(user);
+            buttonRep(chatId, replyKeyboardMarkup);
             try {
                 execute(message);
             } catch (TelegramApiException e) {
                 log.error("Error occurred: " + e.getMessage());
             }
-        } else if (user.getCount() == 21) {
+        } else if (user.getCount() == 31) {
             SendMessage message = new SendMessage();
             message.setChatId(chatId);
             message.setParseMode(ParseMode.MARKDOWN);
-            message.setText("\uD83E\uDD73 " + user.getBall() + " сиздин упайыныз" );
-            user.setCount(0);
+            message.setText(" \uD83E\uDD73 " + "Сиздин упайыныз -> " + user.getBall() +"\uD83C\uDDF0\uD83C\uDDEC");
+            user.setCount(1);
+            user.setRandom(0);
             userRepository.save(user);
+
             try {
                 execute(message);
             } catch (TelegramApiException e) {
                 log.error("Error occurred: " + e.getMessage());
             }
         }
-    }
-
-    public void test5() {
-
     }
 
     public String test4(Question question, User user) {
@@ -168,39 +168,39 @@ public class TelegramBotService extends TelegramLongPollingBot {
         userRepository.save(user);
         switch (random_one) {
             case 1:
-                return question.getQuestionTest() + "\n" +
-                        "A: " + question.getCorrectAnswer() + "\n" +
-                        "B: " + question.getIncorrectAnswerOne() + "\n" +
-                        "C: " + question.getIncorrectAnswerTwo() + "\n" +
-                        "D:" + question.getIncorrectAnswerThree();
+                return question.getQuestionTest() + "\n\n" +
+                        "A:  " + question.getCorrectAnswer() + "\n\n" +
+                        "B:  " + question.getIncorrectAnswerOne() + "\n\n" +
+                        "C:  " + question.getIncorrectAnswerTwo() + "\n\n" +
+                        "D:  " + question.getIncorrectAnswerThree();
             case 2:
-                return question.getQuestionTest() + "\n" +
-                        "A: " + question.getIncorrectAnswerOne() + "\n" +
-                        "B: " + question.getCorrectAnswer() + "\n" +
-                        "C: " + question.getIncorrectAnswerTwo() + "\n" +
-                        "D:" + question.getIncorrectAnswerThree();
+                return question.getQuestionTest() + "\n\n" +
+                        "A:  " + question.getIncorrectAnswerOne() + "\n\n" +
+                        "B:  " + question.getCorrectAnswer() + "\n\n" +
+                        "C:  " + question.getIncorrectAnswerTwo() + "\n\n" +
+                        "D:  " + question.getIncorrectAnswerThree();
 
             case 3:
-                return question.getQuestionTest() + "\n" +
-                        "A: " + question.getIncorrectAnswerOne() + "\n" +
-                        "B: " + question.getIncorrectAnswerTwo() + "\n" +
-                        "C: " + question.getCorrectAnswer() + "\n" +
-                        "D:" + question.getIncorrectAnswerThree();
+                return question.getQuestionTest() + "\n\n" +
+                        "A:  " + question.getIncorrectAnswerOne() + "\n\n" +
+                        "B:  " + question.getIncorrectAnswerTwo() + "\n\n" +
+                        "C:  " + question.getCorrectAnswer() + "\n\n" +
+                        "D:  " + question.getIncorrectAnswerThree();
 
             case 4:
-                return question.getQuestionTest() + "\n" +
-                        "A: " + question.getIncorrectAnswerOne() + "\n" +
-                        "B: " + question.getIncorrectAnswerTwo() + "\n" +
-                        "C: " + question.getIncorrectAnswerThree() + "\n" +
-                        "D:" + question.getCorrectAnswer();
+                return question.getQuestionTest() + "\n\n" +
+                        "A:  " + question.getIncorrectAnswerOne() + "\n\n\n" +
+                        "B:  " + question.getIncorrectAnswerTwo() + "\n\n" +
+                        "C:  " + question.getIncorrectAnswerThree() + "\n\n" +
+                        "D:  " + question.getCorrectAnswer();
 
         }
         return " ";
     }
 
 
-    public void test2(Long chatId, User user, Question question, String text) {
-
+    public void test2(Long chatId, User user, String text) {
+        Question question = questionRepository.findById((long) user.getCount() - 1).get();
 
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
@@ -223,7 +223,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
             user.setBall(user.getBall() + 10);
             userRepository.save(user);
         } else {
-            sendMessage.setText(WRONG + " \n правильный ответ ->  " + question.getCorrectAnswer());
+            sendMessage.setText(WRONG + "\nТуура жооп ->  " + question.getCorrectAnswer());
         }
         try {
             execute(sendMessage);
@@ -268,8 +268,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
         sendMessage.setParseMode(ParseMode.MARKDOWN);
-        sendMessage.setText("Write your email \n"
-                + "Напишите свой email");
+        sendMessage.setText("Электронной почтанызды жазыныз.");
         try {
             execute(sendMessage);
         } catch (TelegramApiException e) {
@@ -291,9 +290,9 @@ public class TelegramBotService extends TelegramLongPollingBot {
     }
 
     private void startCommandReceived(Long chatId, String name) {
-        String answer = "Hi, " + name + ", nice to meet you! " +
-                "Вам с начальа регистрировать надо Email " +
-                "/register";
+        String answer = "Hi,\uD83C\uDDF0\uD83C\uDDEC " + name + ", Таанышканыма кубанычтамын!" +
+                "Бул бот Java программалоо тили боюнча оз билимин текшеруу учун тузулгон.\n" +
+                " Нажмите >> /register << ";
         log.info("Replied t user " + name);
         SendMessage message = new SendMessage();
         message.setChatId(String.valueOf(chatId));
@@ -303,5 +302,18 @@ public class TelegramBotService extends TelegramLongPollingBot {
         } catch (TelegramApiException e) {
             log.error("Error occurred: " + e.getMessage());
         }
+    }
+
+    public void sendPhoto(Long id) {
+        SendPhoto sendPhoto = new SendPhoto();
+        sendPhoto.setPhoto(new InputFile(new File("docs/img_telegram-bot.jpeg")));
+        sendPhoto.setChatId(id);
+
+        try {
+            execute(sendPhoto);
+        } catch (TelegramApiException e) {
+            log.error("Error occurred: " + e.getMessage());
+        }
+
     }
 }

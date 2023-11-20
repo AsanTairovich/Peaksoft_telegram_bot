@@ -28,9 +28,9 @@ public class UserService {
             user.setEmail(userEmail);
             user.setCount(1);
             userRepository.save(user);
-            return "Successfully registered\n" + "" +
-                    "Успешно зарегистрирован"+"\n" +
-                    "Вы готовы пройти тест, что бы проверить свои знаний. Если готов нажмите /test";
+            return "Успешно зарегистрирован"+"\n" +
+                    "Вы готовы пройти тест, что бы проверить свои знаний.\n" +
+                    "Если готов нажмите >> /test <<";
         }
         return "!";
     }
