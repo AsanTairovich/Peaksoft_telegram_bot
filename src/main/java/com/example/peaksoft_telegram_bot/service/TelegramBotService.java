@@ -2,8 +2,10 @@ package com.example.peaksoft_telegram_bot.service;
 
 import com.example.peaksoft_telegram_bot.config.TelegramBotConfig;
 import com.example.peaksoft_telegram_bot.entity.Question;
+import com.example.peaksoft_telegram_bot.entity.Test;
 import com.example.peaksoft_telegram_bot.entity.User;
 import com.example.peaksoft_telegram_bot.repository.QuestionRepository;
+import com.example.peaksoft_telegram_bot.repository.TestRepository;
 import com.example.peaksoft_telegram_bot.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -38,6 +41,8 @@ public class TelegramBotService extends TelegramLongPollingBot {
     private UserService userService;
     @Autowired
     private QuestionRepository questionRepository;
+    @Autowired
+    private TestRepository testRepository;
     @Autowired
     private UserRepository userRepository;
     static final String HELP_TEXT = "This bot is create to demonstrate Spring capabilities. \n\n" +
@@ -81,121 +86,176 @@ public class TelegramBotService extends TelegramLongPollingBot {
             if (messageText.contains("@")) {
                 sed(chatId, update);
             }
-        }
 
-        if (update.hasMessage() && update.getMessage().hasText()) {
-            String messageText2 = update.getMessage().getText();
-            long chatId = update.getMessage().getChatId();
             ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
-            if (messageText2.equals("/test") || messageText2.equals("A") || messageText2.equals("B")
-                    || messageText2.equals("C") || messageText2.equals("D")) {
-                test(chatId, replyKeyboardMarkup, update.getMessage().getChat().getFirstName(), messageText2);
+            switch (messageText) {
+                case "/test":
+                    buttonTest(chatId, replyKeyboardMarkup);
+                    break;
+                case "JavaCoreOne":
+
+                    break;
+                case "JavaCoreTwo":
+
+                    break;
+                case "SQLQuestion":
+                    test(messageText, chatId);
+                    break;
+                case "SpringQuestion":
+
+                    break;
+                case "HibernateQuestion":
+
+                    break;
             }
         }
     }
+    public void test (String questionName, Long chatId){
+        long a = 3;
+        Test test = testRepository.findById(a).get();
+        SendMessage sendmessage = new SendMessage();
+        sendmessage.setChatId(chatId);
+        sendmessage.setParseMode(ParseMode.MARKDOWN);
+        System.out.println(test);
+        for (int i = 0; i < test.getQuestionList().size(); i++) {
+            sendmessage.setText("test");
+            try {
+                execute(sendmessage);
+            } catch (TelegramApiException e) {
+                log.error("Error occurred: " + e.getMessage());
+            }
+        }
 
-    public void buttonRep(Long chatId, ReplyKeyboardMarkup replyKeyboardMarkup) {
-        SendMessage message = new SendMessage();
-        message.setChatId(chatId);
-        message.setParseMode(ParseMode.MARKDOWN);
-        message.setText("Peaksoft Moscow");
+    }
 
+    public void buttonTest( Long chatId, ReplyKeyboardMarkup replyKeyboardMarkup) {
+        SendMessage sendmessage = new SendMessage();
+        sendmessage.setChatId(chatId);
+        sendmessage.setParseMode(ParseMode.MARKDOWN);
+        sendmessage.setText("Танданыз");
         replyKeyboardMarkup.setResizeKeyboard(true);
         replyKeyboardMarkup.setSelective(true);
+        List<KeyboardRow> keyboardRowList1 = new ArrayList<>();
+        
 
-        List<KeyboardRow> keyboardRowList = new ArrayList<>();
-        KeyboardRow keyboardRow = new KeyboardRow();
+        KeyboardRow keyboardRow1 = new KeyboardRow();
+        KeyboardRow keyboardRow2 = new KeyboardRow();
+        KeyboardRow keyboardRow3 = new KeyboardRow();
+        KeyboardRow keyboardRow4 = new KeyboardRow();
+        KeyboardRow keyboardRow5 = new KeyboardRow();
 
-        keyboardRow.add("A");
-        keyboardRow.add("B");
-        keyboardRow.add("C");
-        keyboardRow.add("D");
-        keyboardRowList.add(keyboardRow);
-        replyKeyboardMarkup.setKeyboard(keyboardRowList);
-        message.setReplyMarkup(replyKeyboardMarkup);
+        keyboardRow1.add("JavaCoreOne");
+        keyboardRow2.add("JavaCoreTwo");
+        keyboardRow3.add("SQLQuestion");
+        keyboardRow4.add("SpringQuestion");
+        keyboardRow5.add("HibernateQuestion");
 
+        keyboardRowList1.add(keyboardRow1);
+        keyboardRowList1.add(keyboardRow2);
+        keyboardRowList1.add(keyboardRow3);
+        keyboardRowList1.add(keyboardRow4);
+        keyboardRowList1.add(keyboardRow5);
+
+        replyKeyboardMarkup.setKeyboard(keyboardRowList1);
+
+        sendmessage.setReplyMarkup(replyKeyboardMarkup);
         try {
-            execute(message);
+            execute(sendmessage);
         } catch (TelegramApiException e) {
             log.error("Error occurred: " + e.getMessage());
         }
     }
 
-    public  void test(Long chatId, ReplyKeyboardMarkup replyKeyboardMarkup, String userName, String text) {
-        User user = userRepository.findByUserName(userName).get();
-
-        if (user.getRandom() >= 1) {
-            test2(chatId, user, text);
-        }
-
-        if (user.getCount() >= 1 && user.getCount() <= 30) {
-            Question question = questionRepository.findById((long) user.getCount()).get();
-
-            SendMessage message = new SendMessage();
-            message.setChatId(chatId);
-            message.setParseMode(ParseMode.MARKDOWN);
-            message.setText("Вопрос: " + user.getCount() + ") " + test4(question, user)+"\n");
-
-            user.setCount(user.getCount() + 1);
-            userRepository.save(user);
-            buttonRep(chatId, replyKeyboardMarkup);
-            try {
-                execute(message);
-            } catch (TelegramApiException e) {
-                log.error("Error occurred: " + e.getMessage());
-            }
-        } else if (user.getCount() == 31) {
-            SendMessage message = new SendMessage();
-            message.setChatId(chatId);
-            message.setParseMode(ParseMode.MARKDOWN);
-            message.setText(" \uD83E\uDD73 " + "Сиздин упайыныз -> " + user.getBall() +"\uD83C\uDDF0\uD83C\uDDEC");
-            user.setCount(1);
-            user.setRandom(0);
-            userRepository.save(user);
-
-            try {
-                execute(message);
-            } catch (TelegramApiException e) {
-                log.error("Error occurred: " + e.getMessage());
-            }
-        }
-    }
+//    public void buttonRep(Long chatId, ReplyKeyboardMarkup replyKeyboardMarkup) {
+//        SendMessage message = new SendMessage();
+//        message.setChatId(chatId);
+//        message.setParseMode(ParseMode.MARKDOWN);
+//        message.setText("Peaksoft Moscow");
+//
+//        replyKeyboardMarkup.setResizeKeyboard(true);
+//        replyKeyboardMarkup.setSelective(true);
+//
+//        List<KeyboardRow> keyboardRowList = new ArrayList<>();
+//        KeyboardRow keyboardRow = new KeyboardRow();
+//
+//        keyboardRow.add("A");
+//        keyboardRow.add("B");
+//        keyboardRow.add("C");
+//        keyboardRow.add("D");
+//        keyboardRowList.add(keyboardRow);
+//        replyKeyboardMarkup.setKeyboard(keyboardRowList);
+//        message.setReplyMarkup(replyKeyboardMarkup);
+//
+//        try {
+//            execute(message);
+//        } catch (TelegramApiException e) {
+//            log.error("Error occurred: " + e.getMessage());
+//        }
+//    }
+//
+//    public void test(Long chatId, ReplyKeyboardMarkup replyKeyboardMarkup, String userName, String text) {
+//        User user = userRepository.findByUserName(userName).get();
+//        SendMessage message = new SendMessage();
+//        message.setChatId(chatId);
+//        message.setParseMode(ParseMode.MARKDOWN);
+//
+//        if (user.getRandom() >= 1) {
+//            test2(chatId, user, text);
+//        }
+//
+//        if (user.getCount() >= 1 && user.getCount() <= questionRepository.countAll()) {
+//            Question question = questionRepository.findById((long) user.getCount()).get();
+//
+//            message.setText("Вопрос: " + user.getCount() + ") " + test4(question, user) + "\n");
+//            user.setCount(user.getCount() + 1);
+//            userRepository.save(user);
+//            buttonRep(chatId, replyKeyboardMarkup);
+//
+//        } else if (user.getCount() == 21) {
+//            message.setText(" \uD83E\uDD73 " + "Сиздин упайыныз -> " + user.getBall() + "\uD83C\uDDF0\uD83C\uDDEC");
+//            user.setCount(1);
+//            user.setRandom(0);
+//            userRepository.save(user);
+//
+//            ReplyKeyboardRemove replyKeyboardRemove = new ReplyKeyboardRemove();
+//            replyKeyboardRemove.setRemoveKeyboard(true);
+//            message.setReplyMarkup(replyKeyboardRemove);
+//        }
+//        try {
+//            execute(message);
+//        } catch (TelegramApiException e) {
+//            log.error("Error occurred: " + e.getMessage());
+//        }
+//    }
 
     public String test4(Question question, User user) {
         Random random = new Random();
         int random_one = random.nextInt(1, 5);
         user.setRandom(random_one);
         userRepository.save(user);
-        switch (random_one) {
-            case 1:
-                return question.getQuestionTest() + "\n\n" +
-                        "A:  " + question.getCorrectAnswer() + "\n\n" +
-                        "B:  " + question.getIncorrectAnswerOne() + "\n\n" +
-                        "C:  " + question.getIncorrectAnswerTwo() + "\n\n" +
-                        "D:  " + question.getIncorrectAnswerThree();
-            case 2:
-                return question.getQuestionTest() + "\n\n" +
-                        "A:  " + question.getIncorrectAnswerOne() + "\n\n" +
-                        "B:  " + question.getCorrectAnswer() + "\n\n" +
-                        "C:  " + question.getIncorrectAnswerTwo() + "\n\n" +
-                        "D:  " + question.getIncorrectAnswerThree();
-
-            case 3:
-                return question.getQuestionTest() + "\n\n" +
-                        "A:  " + question.getIncorrectAnswerOne() + "\n\n" +
-                        "B:  " + question.getIncorrectAnswerTwo() + "\n\n" +
-                        "C:  " + question.getCorrectAnswer() + "\n\n" +
-                        "D:  " + question.getIncorrectAnswerThree();
-
-            case 4:
-                return question.getQuestionTest() + "\n\n" +
-                        "A:  " + question.getIncorrectAnswerOne() + "\n\n\n" +
-                        "B:  " + question.getIncorrectAnswerTwo() + "\n\n" +
-                        "C:  " + question.getIncorrectAnswerThree() + "\n\n" +
-                        "D:  " + question.getCorrectAnswer();
-
-        }
-        return " ";
+        return switch (random_one) {
+            case 1 -> question.getQuestionTest() + "\n\n" +
+                    "A:  " + question.getCorrectAnswer() + "\n\n" +
+                    "B:  " + question.getIncorrectAnswerOne() + "\n\n" +
+                    "C:  " + question.getIncorrectAnswerTwo() + "\n\n" +
+                    "D:  " + question.getIncorrectAnswerThree();
+            case 2 -> question.getQuestionTest() + "\n\n" +
+                    "A:  " + question.getIncorrectAnswerOne() + "\n\n" +
+                    "B:  " + question.getCorrectAnswer() + "\n\n" +
+                    "C:  " + question.getIncorrectAnswerTwo() + "\n\n" +
+                    "D:  " + question.getIncorrectAnswerThree();
+            case 3 -> question.getQuestionTest() + "\n\n" +
+                    "A:  " + question.getIncorrectAnswerOne() + "\n\n" +
+                    "B:  " + question.getIncorrectAnswerTwo() + "\n\n" +
+                    "C:  " + question.getCorrectAnswer() + "\n\n" +
+                    "D:  " + question.getIncorrectAnswerThree();
+            case 4 -> question.getQuestionTest() + "\n\n" +
+                    "A:  " + question.getIncorrectAnswerOne() + "\n\n\n" +
+                    "B:  " + question.getIncorrectAnswerTwo() + "\n\n" +
+                    "C:  " + question.getIncorrectAnswerThree() + "\n\n" +
+                    "D:  " + question.getCorrectAnswer();
+            default -> "";
+        };
     }
 
 
@@ -302,6 +362,11 @@ public class TelegramBotService extends TelegramLongPollingBot {
         } catch (TelegramApiException e) {
             log.error("Error occurred: " + e.getMessage());
         }
+    }
+
+    public void removeRep() {
+        ReplyKeyboardRemove replyKeyboardRemove = new ReplyKeyboardRemove();
+        replyKeyboardRemove.setRemoveKeyboard(true);
     }
 
     public void sendPhoto(Long id) {
