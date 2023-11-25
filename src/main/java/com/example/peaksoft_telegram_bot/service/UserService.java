@@ -26,7 +26,6 @@ public class UserService {
             User user = new User();
             user.setUserName(userName);
             user.setEmail(userEmail);
-            user.setCount(1);
             userRepository.save(user);
             return "Успешно зарегистрирован"+"\n" +
                     "Вы готовы пройти тест, что бы проверить свои знаний.\n" +
