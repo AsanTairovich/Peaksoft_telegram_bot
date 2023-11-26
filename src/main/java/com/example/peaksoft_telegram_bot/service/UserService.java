@@ -10,11 +10,12 @@ import java.util.Optional;
 @Service
 public class UserService {
     @Autowired
-    private  UserRepository userRepository;
+    private UserRepository userRepository;
 
-    public String registerUser(String userEmail, String userName){
+    public String registerUser(String userEmail, String userName) {
 
         Optional<User> user1 = Optional.ofNullable(userRepository.findByEmail(userEmail)).get();
+        Optional<User> user2 = Optional.ofNullable(userRepository.findByUserName(userName)).get();
 
         if (!emailValidation(userEmail).equals("good")) {
             return "Email is not correct \n" +
@@ -22,18 +23,21 @@ public class UserService {
         } else if (user1.isPresent()) {
             return "User with this mail already exists in the database\n" + "" +
                     "Пользователь с этой почтой уже существует в базе данных";
+        } else if (user2.isPresent()) {
+            return "Пользователь с этой имя >>" + userName + "<< уже существует в базе данных";
+
         } else if (userEmail.contains("@")) {
             User user = new User();
             user.setUserName(userName);
             user.setEmail(userEmail);
-            user.setCount(1);
             userRepository.save(user);
-            return "Успешно зарегистрирован"+"\n" +
+            return "Успешно зарегистрирован" + "\n" +
                     "Вы готовы пройти тест, что бы проверить свои знаний.\n" +
                     "Если готов нажмите >> /test <<";
         }
         return "!";
     }
+
     public String emailValidation(String email) {
         if (email.length() > 30) {
             return " fgskjfgjsf";

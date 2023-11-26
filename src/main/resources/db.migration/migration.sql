@@ -1,9 +1,9 @@
 INSERT INTO tests (name, local_date_time)
-VALUES ('JavaCoreOne', current_date),
-       ('JavaCoreTwo', current_date),
-       ('SQLQuestion', current_date),
-       ('SpringQuestion', current_date),
-       ('HibernateQuestion', current_date);
+VALUES ('Java Core 1', current_date),
+       ('Java Core 2', current_date),
+       ('SQL Question', current_date),
+       ('Spring Question', current_date),
+       ('Hibernate Question', current_date);
 
 INSERT INTO questions(question_name, question_test, correct_answer, incorrect_answer_one, incorrect_answer_two, incorrect_answer_three,test_id)
 VALUES ('SQLQuestion','Какие операции входят в DDL?', 'ALTER', 'SELECT', 'DROP', 'DELETE',3),
@@ -90,7 +90,7 @@ VALUES ('SQLQuestion','Какие операции входят в DDL?', 'ALTER
     ('JavaCoreTwo','Почему Map не Collection?' , 'Совокупность пар ключ и значение' , 'Совокупность ключей' , 'Совокупность всех элементов' , 'Совокупность значений',2) ,
     ('JavaCoreTwo','Какие нововведения появились в Java 8?' , 'Дефолтные методы в интерфейсах' , 'Дженерики' , 'Абстракные методы' ,'честно, не знаю',2) ,
     ('JavaCoreTwo','Какой класс с самым полным объемом информации о временном контексте в календарной системе ISO-8601?' , 'ZonedDataTime' , 'LocalDataTime','DataTime' , 'LocalDate',2) ,
-    ('JavaCoreTwo','В какой версии java появились дженерики?' , '5' , '1' , '8' , '15',2)
+    ('JavaCoreTwo','В какой версии java появились дженерики?' , '5' , '1' , '8' , '15',2),
     ('JavaCoreTwo','Можно ли создать стрим из коллекции?' , 'да' , 'нет' , 'честно, не знаю','не всегда',2),
     ('JavaCoreTwo','Если мы объявили wildcard с extends?' , 'То это producer' , 'То это consumer' , 'То это function' , 'То это predicate',2),
     ('JavaCoreTwo','Выберите терминальные методы в стримах ...' , 'findAny()' , 'map()' , 'peak()' , 'честно, не знаю',2),

@@ -19,7 +19,7 @@ public class User {
     @Email
     private String email;
     private int count;
-    private String pinCode;
-    private int ball;
+    private String questionName;
+    private int testResult;
     private int random;
 }

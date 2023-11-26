@@ -6,9 +6,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 
 public interface TestRepository extends JpaRepository<Test, Long> {
-    @Query("select test from Test test where upper(test.name) like concat('%',:text,'%')")
-    Test findByName(@Param("text") String text);
+    Optional<Test> findByName (String name);
 }
