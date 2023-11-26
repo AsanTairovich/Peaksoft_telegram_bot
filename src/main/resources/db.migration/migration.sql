@@ -1,9 +1,9 @@
 INSERT INTO tests (name, local_date_time)
-VALUES ('JavaCoreOne', current_date),
-       ('JavaCoreTwo', current_date),
-       ('SQLQuestion', current_date),
-       ('SpringQuestion', current_date),
-       ('HibernateQuestion', current_date);
+VALUES ('Java Core 1', current_date),
+       ('Java Core 2', current_date),
+       ('SQL Question', current_date),
+       ('Spring Question', current_date),
+       ('Hibernate Question', current_date);
 
 INSERT INTO questions(question_name, question_test, correct_answer, incorrect_answer_one, incorrect_answer_two, incorrect_answer_three,test_id)
 VALUES ('SQLQuestion','Какие операции входят в DDL?', 'ALTER', 'SELECT', 'DROP', 'DELETE',3),

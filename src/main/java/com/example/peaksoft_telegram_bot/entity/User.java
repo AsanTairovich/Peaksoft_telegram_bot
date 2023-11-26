@@ -1,11 +1,8 @@
 package com.example.peaksoft_telegram_bot.entity;
 
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.*;
-
-
 
 @Entity
 @Table(name = "users")
@@ -23,6 +20,6 @@ public class User {
     private String email;
     private int count;
     private String questionName;
-    private int ball;
+    private int testResult;
     private int random;
 }
