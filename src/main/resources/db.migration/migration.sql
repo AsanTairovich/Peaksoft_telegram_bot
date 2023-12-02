@@ -3,7 +3,7 @@ VALUES ('Java Core 1', current_date),
        ('Java Core 2', current_date),
        ('SQL Question', current_date),
        ('Spring Question', current_date),
-       ('Hibernate Question', current_date);
+       ('Hibernate Question', current_date) on conflict do nothing;
 
 INSERT INTO questions(question_name, question_test, correct_answer, incorrect_answer_one, incorrect_answer_two, incorrect_answer_three,test_id)
 VALUES ('SQLQuestion','Какие операции входят в DDL?', 'ALTER', 'SELECT', 'DROP', 'DELETE',3),
@@ -119,7 +119,7 @@ VALUES ('SQLQuestion','Какие операции входят в DDL?', 'ALTER
     ('JavaCoreTwo','Какой промежуточный метод возвращает новый поток, пропуская первые n элементов' , 'skip(n)' , 'limit(n)' , 'sorted(n)' , 'distinct(n)',2) ,
     ('JavaCoreTwo','Какие классы внутренне поддерживаются реализациями Map?' , 'Реализующие интерфейс Set' , 'Реализующие интерфейс List' , 'Реализующие интерфейс Queue' , 'Реализующие интерфейс Collection',2) ,
     ('JavaCoreTwo','Как устроена HashMap?' , 'Внутри состоит из корзин и списка элементов, на которые ссылаются корзины' , 'Представляет отображение в виде дерева' , 'В его основе лежит LinkedHashMap','честно, не знаю',2) ,
-    ('JavaCoreTwo','java.util.Collection это?' , 'Корневой интерфейс JСF' , 'Класс содержит исключительно нестатические методы для работы с коллекциями' , 'Класс содержит исключительно статические методы для работы с коллекциями','Корневой интерфейс Java',2);
+    ('JavaCoreTwo','java.util.Collection это?' , 'Корневой интерфейс JСF' , 'Класс содержит исключительно нестатические методы для работы с коллекциями' , 'Класс содержит исключительно статические методы для работы с коллекциями','Корневой интерфейс Java',2) on conflict do nothing;
 
 
 -- VALUES ('Чем можно заменить лямбда-выражение?', 'Анонимный класс', 'Stream API', 'Локальный класс',
