@@ -8,6 +8,7 @@ import com.example.peaksoft_telegram_bot.repository.QuestionRepository;
 import com.example.peaksoft_telegram_bot.repository.TestRepository;
 import com.example.peaksoft_telegram_bot.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -22,8 +23,10 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRem
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
 @Component
@@ -37,6 +40,8 @@ public class TelegramBotService extends TelegramLongPollingBot {
     private TestRepository testRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private EmailService emailService;
     static final String HELP_TEXT = "This bot is create to demonstrate Spring capabilities. \n\n" +
             "You can execute commands from the main menu on the left or by typing a command: \n\n" +
             "Type /start to see a welcome message \n\n" +
@@ -45,6 +50,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
     static final String option = "A B C D";
     static final String RIGHT = "ВЕРНО " + "✅";
     static final String WRONG = "НЕПРАВИЛЬНЫЙ " + "❌";
+    private static boolean isRegistered = false;
 
     public TelegramBotService(TelegramBotConfig telegramBotConfig, EmailService emailService, QuestionRepository questionRepository) {
         this.telegramBotConfig = telegramBotConfig;
@@ -74,11 +80,18 @@ public class TelegramBotService extends TelegramLongPollingBot {
                 case "/register" -> userRegister(chatId);
                 case "/delete" -> deleteUser(chatId, update.getMessage().getChat().getFirstName());
             }
-
             if (messageText.contains("@")) {
                 saveUser(chatId, update);
+                isRegistered = true;
+                // Блок проверка пинкода
+                emailService.sendSimpleMessage(new Random().nextInt(1000, 9999), messageText);
+                sendTextToUser(chatId, "На ваш мейл выслан пинкод!\nПинкод жазыныз");
             }
-
+            if (isRegistered && (messageText.length() == 4 && StringUtils.isNumeric(messageText))) {
+                System.out.println("ONE");
+                    registrationConfirm(Integer.parseInt(messageText), update.getMessage().getChat().getFirstName(), chatId);
+                isRegistered = false;
+            }
             ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
 
             if (messageText.equals("Java Core 1") || messageText.equals("Java Core 2") || messageText.equals("SQL Question") ||
@@ -315,28 +328,12 @@ public class TelegramBotService extends TelegramLongPollingBot {
     }
 
     public void userRegister(Long chatId) {
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(chatId);
-        sendMessage.setParseMode(ParseMode.MARKDOWN);
-        sendMessage.setText("Электронной почтанызды жазыныз.");
-        try {
-            execute(sendMessage);
-        } catch (TelegramApiException e) {
-            log.error("Error occurred: " + e.getMessage());
-        }
+        sendTextToUser(chatId, "Электронной почтанызды жазыныз.");
     }
 
     public void saveUser(Long chatId, Update update) {
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(chatId);
-        sendMessage.setParseMode(ParseMode.MARKDOWN);
-        sendMessage.setText(userService.registerUser(update.getMessage().getText(),
+        sendTextToUser(chatId, userService.registerUser(update.getMessage().getText(),
                 update.getMessage().getChat().getFirstName()));
-        try {
-            execute(sendMessage);
-        } catch (TelegramApiException e) {
-            log.error("Error occurred: " + e.getMessage());
-        }
     }
 
     public void startCommandReceived(Long chatId, String name) {
@@ -344,26 +341,35 @@ public class TelegramBotService extends TelegramLongPollingBot {
                 "Бул бот Java программалоо тили боюнча оз билимин текшеруу учун тузулгон.\n" +
                 " Нажмите >> /register << ";
         log.info("Replied t user " + name);
-        SendMessage message = new SendMessage();
-        message.setChatId(String.valueOf(chatId));
-        message.setText(answer);
-        try {
-            execute(message);
-        } catch (TelegramApiException e) {
-            log.error("Error occurred: " + e.getMessage());
-        }
+        sendTextToUser(chatId, answer);
     }
     public void deleteUser(Long chatId, String userName){
         User user = userRepository.findByUserName(userName).get();
-
-        SendMessage sendmessage = new SendMessage();
-        sendmessage.setChatId(chatId);
-        sendmessage.setParseMode(ParseMode.MARKDOWN);
         userRepository.delete(user);
+        sendTextToUser(chatId, "Успешно уделонно!");
+    }
 
-        sendmessage.setText("Успешно уделонно!");
+    public void registrationConfirm(Integer pin, String username, Long chatId) {
+        User user = userRepository.findByUserName(username).get();
+        String outText;
+        if (Objects.equals(user.getPin(), pin) && user.getPinExpiration().isAfter(LocalDateTime.now())) {
+            user.setEmailActive(true);
+            user.setPin(0);
+            outText = "Email is activated!";
+        } else {
+            outText = "Pin is not correct or pin expired!\n Кайра регистрация кылсаз болот!";
+        }
+        userRepository.save(user);
+        sendTextToUser(chatId, outText);
+    }
+
+    private void sendTextToUser(Long chatId, String text) {
         try {
-            execute(sendmessage);
+            execute(SendMessage.builder()
+                    .chatId(chatId)
+                    .parseMode(ParseMode.MARKDOWN)
+                    .text(text)
+                    .build());
         } catch (TelegramApiException e) {
             log.error("Error occurred: " + e.getMessage());
         }
