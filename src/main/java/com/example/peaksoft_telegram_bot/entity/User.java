@@ -1,8 +1,11 @@
 package com.example.peaksoft_telegram_bot.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -22,4 +25,8 @@ public class User {
     private String questionName;
     private int testResult;
     private int random;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user",fetch = FetchType.EAGER)
+    @JsonIgnore
+    private List<Result> resultList;
 }
