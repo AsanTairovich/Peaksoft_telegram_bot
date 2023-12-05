@@ -37,28 +37,30 @@ public class TelegramBotService extends TelegramLongPollingBot {
     private TestRepository testRepository;
     @Autowired
     private UserRepository userRepository;
-    static final String HELP_TEXT = "This bot is create to demonstrate Spring capabilities. \n\n" +
-            "You can execute commands from the main menu on the left or by typing a command: \n\n" +
-            "Type /start to see a welcome message \n\n" +
-            "Type /mydata to see data stored about yourself\n\n" +
-            "Type /help to see this message again";
+    static final String HELP_TEXT = "Этот бот создан для того, чтобы демонстрировать возможности Spring \n\n" +
+            "Вы можете выполнять команды из главного меню слева или нажимая command  \n\n" +
+            " Нажмите /start чтобы посмотреть входящее сообщение \n\n" +
+            " Нажмите /mydata чтобы посмотреть сохраненные данные о вас.\n\n" +
+            "Нажмите  /help  чтобы увидеть эту информацию снова\n\n"+
+            "Приятного использования! 😊";
     static final String option = "A B C D";
-    static final String RIGHT = "ВЕРНО " + "✅";
-    static final String WRONG = "НЕПРАВИЛЬНЫЙ " + "❌";
+    static final String RIGHT = "ВЕРНО ✅";
+    static final String WRONG = "НЕВЕРНО ❌";
 
     public TelegramBotService(TelegramBotConfig telegramBotConfig, EmailService emailService, QuestionRepository questionRepository) {
         this.telegramBotConfig = telegramBotConfig;
 
         List<BotCommand> listOfCommands = new ArrayList<>();
-        listOfCommands.add(new BotCommand("/start", "get a welcome message"));
-        listOfCommands.add(new BotCommand("/register", " you this register"));
-        listOfCommands.add(new BotCommand("/help", "info how to use this bot"));
-        listOfCommands.add(new BotCommand("/test", "test "));
-        listOfCommands.add(new BotCommand("/delete", "delete user! "));
+        listOfCommands.add(new BotCommand("/start", "Добро пожаловать"));
+        listOfCommands.add(new BotCommand("/register", "Регистрация"));
+        listOfCommands.add(new BotCommand("/help", "Помощь"));
+        listOfCommands.add(new BotCommand("/test", "Тест"));
+        listOfCommands.add(new BotCommand("/delete", "Удалить"));
         try {
             this.execute(new SetMyCommands(listOfCommands, new BotCommandScopeDefault(), null));
+            log.info("Список команд успешно настроен.");
         } catch (TelegramApiException e) {
-            log.error("Error setting bot's command list: " + e.getMessage());
+            log.error("Ошибка найстройки списка команд бота:" + e.getMessage());
         }
     }
 
@@ -99,7 +101,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
         sendmessage.setChatId(chatId);
         sendmessage.setParseMode(ParseMode.MARKDOWN);
 
-        sendmessage.setText(" \uD83E\uDD73 " + "Сиздин упайыныз -> " + user.getTestResult() + "\uD83C\uDDF0\uD83C\uDDEC");
+        sendmessage.setText(" \uD83E\uDD73 " + "Ваши баллы-> " + user.getTestResult() + "\uD83C\uDDF0\uD83C\uDDEC");
         user.setCount(0);
         user.setRandom(0);
         user.setTestResult(0);
@@ -118,7 +120,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
         try {
             execute(sendmessage);
         } catch (TelegramApiException e) {
-            log.error("Error occurred: " + e.getMessage());
+            log.error("Произошла ошибка: " + e.getMessage());
         }
     }
 
@@ -157,7 +159,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
             buttonRep(chatId, replyKeyboardMarkup);
 
         } else if (user.getCount() == test.getQuestionList().size()) {
-            sendmessage.setText(" \uD83E\uDD73 " + "Сиздин упайыныз -> " + user.getTestResult() + "\uD83C\uDDF0\uD83C\uDDEC");
+            sendmessage.setText(" \uD83C\uDFC6 " + "Ваш результат-> " + user.getTestResult() + "\uD83C\uDDF0\uD83C\uDDEC");
             user.setCount(0);
             user.setRandom(0);
             user.setTestResult(0);
@@ -170,7 +172,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
         try {
             execute(sendmessage);
         } catch (TelegramApiException e) {
-            log.error("Error occurred: " + e.getMessage());
+            log.error("Произошла ошибка: " + e.getMessage());
         }
     }
 
@@ -178,7 +180,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
         SendMessage sendmessage = new SendMessage();
         sendmessage.setChatId(chatId);
         sendmessage.setParseMode(ParseMode.MARKDOWN);
-        sendmessage.setText("Танданыз");
+        sendmessage.setText("Выберите");
         replyKeyboardMarkup.setResizeKeyboard(true);
         replyKeyboardMarkup.setSelective(true);
         List<KeyboardRow> keyboardRowList1 = new ArrayList<>();
@@ -207,7 +209,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
         try {
             execute(sendmessage);
         } catch (TelegramApiException e) {
-            log.error("Error occurred: " + e.getMessage());
+            log.error("Произошла ошибка: " + e.getMessage());
         }
     }
 
@@ -237,7 +239,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
         try {
             execute(message);
         } catch (TelegramApiException e) {
-            log.error("Error occurred: " + e.getMessage());
+            log.error("Произошла ошибка: " + e.getMessage());
         }
     }
 
@@ -295,7 +297,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
             user.setTestResult(user.getTestResult() + 10);
             userRepository.save(user);
         } else {
-            sendMessage.setText(WRONG + "\nТуура жооп ->  " + question.getCorrectAnswer());
+            sendMessage.setText(WRONG + "\nПравильный ответ ->  " + question.getCorrectAnswer());
         }
         try {
             execute(sendMessage);
@@ -318,7 +320,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
         sendMessage.setParseMode(ParseMode.MARKDOWN);
-        sendMessage.setText("Электронной почтанызды жазыныз.");
+        sendMessage.setText("Пожалуйста, введите электронную почту");
         try {
             execute(sendMessage);
         } catch (TelegramApiException e) {
@@ -340,13 +342,14 @@ public class TelegramBotService extends TelegramLongPollingBot {
     }
 
     public void startCommandReceived(Long chatId, String name) {
-        String answer = "Hi,\uD83C\uDDF0\uD83C\uDDEC " + name + ", Таанышканыма кубанычтамын!" +
-                "Бул бот Java программалоо тили боюнча оз билимин текшеруу учун тузулгон.\n" +
-                " Нажмите >> /register << ";
+        String greeting = "Привет, " + name + "!\n"+
+                "\uD83D\uDC4B Бот начал работу!\n" +
+                "Этот бот создан для тестирования ваших знаний по Java-программированию.\n" +
+                "Нажмите >> /register << для продолжения.";
         log.info("Replied t user " + name);
         SendMessage message = new SendMessage();
         message.setChatId(String.valueOf(chatId));
-        message.setText(answer);
+        message.setText(greeting);
         try {
             execute(message);
         } catch (TelegramApiException e) {
@@ -361,11 +364,12 @@ public class TelegramBotService extends TelegramLongPollingBot {
         sendmessage.setParseMode(ParseMode.MARKDOWN);
         userRepository.delete(user);
 
-        sendmessage.setText("Успешно уделонно!");
+        sendmessage.setText("Пользователь `" + userName + "` успешно удален! ✅");
         try {
             execute(sendmessage);
         } catch (TelegramApiException e) {
             log.error("Error occurred: " + e.getMessage());
+
         }
     }
 }

@@ -19,21 +19,21 @@ public class UserService {
 
         if (!emailValidation(userEmail).equals("good")) {
             return "Email is not correct \n" +
-                    "Электронная почта не правильно";
+                    "Неверная электронная почта";
         } else if (user1.isPresent()) {
             return "User with this mail already exists in the database\n" + "" +
                     "Пользователь с этой почтой уже существует в базе данных";
         } else if (user2.isPresent()) {
-            return "Пользователь с этой имя >>" + userName + "<< уже существует в базе данных";
+            return "Пользователь с этим именем >>" + userName + "<< уже существует в базе данных";
 
         } else if (userEmail.contains("@")) {
             User user = new User();
             user.setUserName(userName);
             user.setEmail(userEmail);
             userRepository.save(user);
-            return "Успешно зарегистрирован" + "\n" +
-                    "Вы готовы пройти тест, что бы проверить свои знаний.\n" +
-                    "Если готов нажмите >> /test <<";
+            return "Успешно зарегистрированы" + "\n" +
+                    "Вы готовы пройти тест чтобы проверить свои знания?\n" +
+                    "Если готовы, нажмите >> /test <<";
         }
         return "!";
     }
@@ -43,8 +43,10 @@ public class UserService {
             return " fgskjfgjsf";
         } else if (email.isEmpty()) {
             return "Email must not be empty!";
+          //  "  ";
         } else if (!email.contains("@")) {
             return "Incorrect email address";
+            //  " Неверная электронная почта ";
         }
         return "good";
     }
