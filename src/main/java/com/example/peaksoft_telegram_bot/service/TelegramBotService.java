@@ -340,8 +340,8 @@ public class TelegramBotService extends TelegramLongPollingBot {
     }
 
     public void startCommandReceived(Long chatId, String name) {
-        String answer = "Hi,\uD83C\uDDF0\uD83C\uDDEC " + name + ", Таанышканыма кубанычтамын!" +
-                "Бул бот Java программалоо тили боюнча оз билимин текшеруу учун тузулгон.\n" +
+        String answer = "Hi, \uD83C\uDDF0\uD83C\uDDEC " + name + ", Таанышканыма кубанычтамын!\n" +
+                "Бул бот Java программалоо тили боюнча\n оз билимин текшеруу учун тузулгон.\n" +
                 " Нажмите >> /register << ";
         log.info("Replied t user " + name);
         SendMessage message = new SendMessage();
