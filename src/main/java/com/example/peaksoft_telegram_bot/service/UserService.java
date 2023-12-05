@@ -18,36 +18,35 @@ public class UserService {
         Optional<User> user2 = Optional.ofNullable(userRepository.findByUserName(userName)).get();
 
         if (!emailValidation(userEmail).equals("good")) {
-            return "Email is not correct \n" +
-                    "Неверная электронная почта";
+            return "❌ Неверный формат электронной почты.\nПожалуйста, введите корректный адрес электронной почты.";
         } else if (user1.isPresent()) {
-            return "User with this mail already exists in the database\n" + "" +
-                    "Пользователь с этой почтой уже существует в базе данных";
+            return "❌ Пользователь с таким адресом электронной почты уже зарегистрирован в базе данных.";
         } else if (user2.isPresent()) {
-            return "Пользователь с этим именем >>" + userName + "<< уже существует в базе данных";
+            return "Пользователь с именем >>" + userName + "<< уже зарегистрирован в базе данных";
 
         } else if (userEmail.contains("@")) {
             User user = new User();
             user.setUserName(userName);
             user.setEmail(userEmail);
             userRepository.save(user);
-            return "Успешно зарегистрированы" + "\n" +
-                    "Вы готовы пройти тест чтобы проверить свои знания?\n" +
-                    "Если готовы, нажмите >> /test <<";
+            return "✅ Регистрация прошла успешно!\n" +
+                    "Вы готовы пройти тест и проверить свои знания?\n" +
+                    "Если готовы, нажмите /test.";
         }
-        return "!";
+        return "❌ Произошла неизвестная ошибка.";
     }
 
     public String emailValidation(String email) {
         if (email.length() > 30) {
-            return " fgskjfgjsf";
+            return "❌ Длина электронной почты слишком длинная. Пожалуйста, введите корректный адрес.";
         } else if (email.isEmpty()) {
-            return "Email must not be empty!";
+            return "❌ Электронная почта не должна быть пустой. Пожалуйста, введите адрес электронной почты.";
           //  "  ";
         } else if (!email.contains("@")) {
-            return "Incorrect email address";
+            return "❌ Некорректный адрес электронной почты. Пожалуйста, введите правильный адрес.";
             //  " Неверная электронная почта ";
         }
         return "good";
+        //✅ Валидация электронной почты прошла успешно.
     }
 }

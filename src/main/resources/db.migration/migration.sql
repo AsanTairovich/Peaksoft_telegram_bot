@@ -119,11 +119,11 @@ VALUES ('SQLQuestion','Какие операции входят в DDL?', 'ALTER
     ('JavaCoreTwo','Какой промежуточный метод возвращает новый поток, пропуская первые n элементов' , 'skip(n)' , 'limit(n)' , 'sorted(n)' , 'distinct(n)',2) ,
     ('JavaCoreTwo','Какие классы внутренне поддерживаются реализациями Map?' , 'Реализующие интерфейс Set' , 'Реализующие интерфейс List' , 'Реализующие интерфейс Queue' , 'Реализующие интерфейс Collection',2) ,
     ('JavaCoreTwo','Как устроена HashMap?' , 'Внутри состоит из корзин и списка элементов, на которые ссылаются корзины' , 'Представляет отображение в виде дерева' , 'В его основе лежит LinkedHashMap','честно, не знаю',2) ,
-    ('JavaCoreTwo','java.util.Collection это?' , 'Корневой интерфейс JСF' , 'Класс содержит исключительно нестатические методы для работы с коллекциями' , 'Класс содержит исключительно статические методы для работы с коллекциями','Корневой интерфейс Java',2),
+    ('JavaCoreTwo','java.util.Collection это?' , 'Корневой интерфейс JСF' , 'Класс содержит исключительно нестатические методы для работы с коллекциями' , 'Класс содержит исключительно статические методы для работы с коллекциями','Корневой интерфейс Java',2);
 
-    ('SpringQuestions','Что такое IoC контейнер?','ApplicationContext','Dependency Injection','Inversion of Control','Factory'),
-    ('SpringQuestions','Выберите наследников ApplicationContext...','AnnotationConfigApplicationContext','ClassPathXmlApplicationContext','BeanFactory','XmlBeanFactory'),
-    ('SpringQuestions','Аннотация @Bean...','Указывается уже реализованного сторонней библиотекой класса','Ставиться над методом','Ставиться над классом','Используется для указания класса, написанного программистом'),
+   -- ('SpringQuestions','Что такое IoC контейнер?','ApplicationContext','Dependency Injection','Inversion of Control','Factory'),
+   --('SpringQuestions','Выберите наследников ApplicationContext...','AnnotationConfigApplicationContext','ClassPathXmlApplicationContext','BeanFactory','XmlBeanFactory'),
+   -- ('SpringQuestions','Аннотация @Bean...','Указывается уже реализованного сторонней библиотекой класса','Ставиться над методом','Ставиться над классом','Используется для указания класса, написанного программистом'),
 
 
 
