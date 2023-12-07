@@ -3,7 +3,6 @@ package com.example.peaksoft_telegram_bot.service;
 import com.example.peaksoft_telegram_bot.entity.Result;
 import com.example.peaksoft_telegram_bot.entity.User;
 import com.example.peaksoft_telegram_bot.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -12,8 +11,11 @@ import java.util.Optional;
 
 @Service
 public class UserService {
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     public String registerUser(String userEmail, String userName) {
 

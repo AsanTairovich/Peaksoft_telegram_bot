@@ -5,6 +5,7 @@ import com.example.peaksoft_telegram_bot.entity.Question;
 import com.example.peaksoft_telegram_bot.entity.Result;
 import com.example.peaksoft_telegram_bot.entity.Test;
 import com.example.peaksoft_telegram_bot.entity.User;
+import com.example.peaksoft_telegram_bot.repository.QuestionRepository;
 import com.example.peaksoft_telegram_bot.repository.ResultRepository;
 import com.example.peaksoft_telegram_bot.repository.TestRepository;
 import com.example.peaksoft_telegram_bot.repository.UserRepository;
@@ -40,14 +41,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
     private final TestRepository testRepository;
     private final UserRepository userRepository;
     private final ResultRepository resultRepository;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private TestRepository testRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private EmailService emailService;
+    private final EmailService emailService;
     static final String HELP_TEXT = "This bot is create to demonstrate Spring capabilities. \n\n" +
             "You can execute commands from the main menu on the left or by typing a command: \n\n" +
             "Type /start to see a welcome message \n\n" +
@@ -56,12 +50,14 @@ public class TelegramBotService extends TelegramLongPollingBot {
     static final String option = "A B C D";
     static final String RIGHT = "ВЕРНО " + "✅";
     static final String WRONG = "НЕПРАВИЛЬНЫЙ " + "❌";
-@Autowired
-    public TelegramBotService(TelegramBotConfig telegramBotConfig, UserService userService, TestRepository testRepository, UserRepository userRepository, ResultRepository resultRepository) {
+
     private static boolean isRegistered = false;
 
-    public TelegramBotService(TelegramBotConfig telegramBotConfig, EmailService emailService, QuestionRepository questionRepository) {
+    public TelegramBotService(TelegramBotConfig telegramBotConfig, EmailService emailService,UserService userService,
+                              TestRepository testRepository, UserRepository userRepository,
+                              ResultRepository resultRepository ) {
         this.telegramBotConfig = telegramBotConfig;
+        this.emailService = emailService;
         this.userService = userService;
         this.testRepository = testRepository;
         this.userRepository = userRepository;
@@ -86,35 +82,31 @@ public class TelegramBotService extends TelegramLongPollingBot {
         if (update.hasMessage() && update.getMessage().hasText()) {
             String messageText = update.getMessage().getText();
             long chatId = update.getMessage().getChatId();
+            ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
 
-            switch (messageText) {
-                case "/start" -> startCommandReceived(chatId, update.getMessage().getChat().getFirstName());
-                case "/register" -> userRegister(chatId);
-                case "/photo" -> photo(chatId);
-                case "/delete" -> deleteUser(chatId, update.getMessage().getChat().getFirstName());
-            }
-            if (messageText.contains("@")) {
+            if (messageText.equals("/start")){
+                startCommandReceived(chatId, update.getMessage().getChat().getFirstName());
+            } else if (messageText.equals("/register")) {
+                userRegister(chatId);
+            } else if (messageText.contains("@")) {
                 saveUser(chatId, update);
                 isRegistered = true;
                 // Блок проверка пинкода
                 emailService.sendSimpleMessage(new Random().nextInt(1000, 9999), messageText);
                 sendTextToUser(chatId, "На ваш мейл выслан пинкод!\nПинкод жазыныз");
-            }
-            if (isRegistered && (messageText.length() == 4 && StringUtils.isNumeric(messageText))) {
-                System.out.println("ONE");
-                    registrationConfirm(Integer.parseInt(messageText), update.getMessage().getChat().getFirstName(), chatId);
+            } else if (isRegistered && (messageText.length() == 4 && StringUtils.isNumeric(messageText))) {
+                registrationConfirm(Integer.parseInt(messageText), update.getMessage().getChat().getUserName(), chatId);
                 isRegistered = false;
-            }
-            ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
-
-            if (messageText.equals("Java Core 1") || messageText.equals("Java Core 2") || messageText.equals("SQL Question") ||
+            } else if (messageText.equals("Java Core 1") || messageText.equals("Java Core 2") || messageText.equals("SQL Question") ||
                     messageText.equals("Spring Question") || messageText.equals("Hibernate Question") || option.contains(messageText)) {
-                userQuestionName(update.getMessage().getChat().getFirstName(), messageText);
-                test(update.getMessage().getChat().getFirstName(), chatId, messageText, replyKeyboardMarkup);
+                userQuestionName(update.getMessage().getChat().getUserName(), messageText);
+                test(update.getMessage().getChat().getUserName(), chatId, messageText, replyKeyboardMarkup);
             } else if (messageText.equals("/test")) {
                 buttonTest(chatId, replyKeyboardMarkup);
             } else if (messageText.equals("/stop")) {
-                stopTest(chatId, update.getMessage().getChat().getFirstName(), replyKeyboardMarkup);
+                stopTest(chatId, update.getMessage().getChat().getUserName(), replyKeyboardMarkup);
+            }else {
+                sendTextToUser(chatId,"❌ Бот не принимает это слово ❌");
             }
         }
     }
@@ -348,8 +340,6 @@ public class TelegramBotService extends TelegramLongPollingBot {
                 result = user.getResultList().get(i);
             }
         }
-
-
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
         sendMessage.setParseMode(ParseMode.MARKDOWN);
@@ -396,7 +386,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
 
     public void saveUser(Long chatId, Update update) {
         sendTextToUser(chatId, userService.registerUser(update.getMessage().getText(),
-                update.getMessage().getChat().getFirstName()));
+                update.getMessage().getChat().getUserName()));
     }
 
     public void startCommandReceived(Long chatId, String name) {
