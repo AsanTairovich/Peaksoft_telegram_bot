@@ -5,13 +5,11 @@ import com.example.peaksoft_telegram_bot.entity.Question;
 import com.example.peaksoft_telegram_bot.entity.Result;
 import com.example.peaksoft_telegram_bot.entity.Test;
 import com.example.peaksoft_telegram_bot.entity.User;
-import com.example.peaksoft_telegram_bot.repository.QuestionRepository;
 import com.example.peaksoft_telegram_bot.repository.ResultRepository;
 import com.example.peaksoft_telegram_bot.repository.TestRepository;
 import com.example.peaksoft_telegram_bot.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
@@ -87,12 +85,10 @@ public class TelegramBotService extends TelegramLongPollingBot {
             if (messageText.equals("/start")){
                 startCommandReceived(chatId, update.getMessage().getChat().getFirstName());
             } else if (messageText.equals("/register")) {
-                userRegister(chatId);
-            } else if (messageText.contains("@")) {
                 saveUser(chatId, update);
+            } else if (messageText.contains("@")) {
                 isRegistered = true;
-                // Блок проверка пинкода
-                emailService.sendSimpleMessage(new Random().nextInt(1000, 9999), messageText);
+                emailService.sendSimpleMessage(new Random().nextInt(1000, 9999), messageText,update.getMessage().getChat().getUserName());
                 sendTextToUser(chatId, "На ваш мейл выслан пинкод!\nПинкод жазыныз");
             } else if (isRegistered && (messageText.length() == 4 && StringUtils.isNumeric(messageText))) {
                 registrationConfirm(Integer.parseInt(messageText), update.getMessage().getChat().getUserName(), chatId);
@@ -380,13 +376,8 @@ public class TelegramBotService extends TelegramLongPollingBot {
         return telegramBotConfig.getToken();
     }
 
-    public void userRegister(Long chatId) {
-        sendTextToUser(chatId, "Электронной почтанызды жазыныз.");
-    }
-
     public void saveUser(Long chatId, Update update) {
-        sendTextToUser(chatId, userService.registerUser(update.getMessage().getText(),
-                update.getMessage().getChat().getUserName()));
+        sendTextToUser(chatId, userService.registerUser(update.getMessage().getChat().getUserName()));
     }
 
     public void startCommandReceived(Long chatId, String name) {
@@ -426,7 +417,9 @@ public class TelegramBotService extends TelegramLongPollingBot {
         if (Objects.equals(user.getPin(), pin) && user.getPinExpiration().isAfter(LocalDateTime.now())) {
             user.setEmailActive(true);
             user.setPin(0);
-            outText = "Email is activated!";
+            outText = "Успешно зарегистрирован" + "\n" +
+                    "Вы готовы пройти тест, что бы проверить свои знаний.\n" +
+                    "Если готов нажмите >> /test <<";
         } else {
             outText = "Pin is not correct or pin expired!\n Кайра регистрация кылсаз болот!";
         }
