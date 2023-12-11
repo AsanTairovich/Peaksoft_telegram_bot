@@ -128,19 +128,6 @@ public class TelegramBotService extends TelegramLongPollingBot {
         emailService.sendResult(res, user.getEmail());
     }
 
-//    public void getResult(Long chatId, String userName) {
-//        User user = userRepository.findByUserName(userName).get();
-//        SendMessage message = new SendMessage();
-//        message.setChatId(chatId);
-//        Result result = new Result();
-//        for (int i = 0; i < user.getResultList().size(); i++) {
-//            if (user.getResultList().get(i).getQuestionName().equals(user.getQuestionName())) {
-//                result = user.getResultList().get(i);
-//            }
-//        }
-//        emailService.sendResult(String.valueOf(result),user.getEmail());
-//    }
-
     public void stopTest(Long chatId, String userName, ReplyKeyboardMarkup replyKeyboardMarkup) {
         User user = userRepository.findByUserName(userName).get();
         SendMessage sendmessage = new SendMessage();
