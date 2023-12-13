@@ -1,4 +1,4 @@
-package com.example.peaksoft_telegram_bot.entity;
+package com.example.peaksoft_telegram_bot.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;

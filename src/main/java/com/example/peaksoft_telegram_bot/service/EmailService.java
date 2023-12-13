@@ -1,6 +1,6 @@
 package com.example.peaksoft_telegram_bot.service;
 
-import com.example.peaksoft_telegram_bot.entity.User;
+import com.example.peaksoft_telegram_bot.model.entity.User;
 import com.example.peaksoft_telegram_bot.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
@@ -28,4 +28,5 @@ public class EmailService {
         userRepository.save(user);
         emailSender.send(message);
     }
+
 }
