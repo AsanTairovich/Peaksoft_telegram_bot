@@ -1,7 +1,7 @@
 package com.example.peaksoft_telegram_bot.service;
 
-import com.example.peaksoft_telegram_bot.entity.Result;
-import com.example.peaksoft_telegram_bot.entity.User;
+import com.example.peaksoft_telegram_bot.model.entity.Result;
+import com.example.peaksoft_telegram_bot.model.entity.User;
 import com.example.peaksoft_telegram_bot.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
