@@ -1,6 +1,6 @@
 package com.example.peaksoft_telegram_bot.service;
 
-import com.example.peaksoft_telegram_bot.entity.User;
+import com.example.peaksoft_telegram_bot.model.entity.User;
 import com.example.peaksoft_telegram_bot.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
@@ -27,5 +27,14 @@ public class EmailService {
         user.setPinExpiration(LocalDateTime.now().plusMinutes(10));
         userRepository.save(user);
         emailSender.send(message);
+    }
+    public void sendResult(String result, String email){
+        SimpleMailMessage mailMessage =new SimpleMailMessage();
+        User user  = userRepository.findByEmail(email).get();
+        mailMessage.setFrom("tairovasan11@gmail.com");
+        mailMessage.setSubject("Peaksoft Moscow java");
+        mailMessage.setText(result);
+        mailMessage.setTo(user.getEmail());
+        emailSender.send(mailMessage);
     }
 }

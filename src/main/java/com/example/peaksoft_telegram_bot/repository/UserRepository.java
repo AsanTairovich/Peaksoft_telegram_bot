@@ -1,6 +1,6 @@
 package com.example.peaksoft_telegram_bot.repository;
 
-import com.example.peaksoft_telegram_bot.entity.User;
+import com.example.peaksoft_telegram_bot.model.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
