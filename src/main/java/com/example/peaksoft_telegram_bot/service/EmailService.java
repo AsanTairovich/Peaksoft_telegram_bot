@@ -28,5 +28,13 @@ public class EmailService {
         userRepository.save(user);
         emailSender.send(message);
     }
-
+    public void sendResult(String result, String email){
+        SimpleMailMessage mailMessage =new SimpleMailMessage();
+        User user  = userRepository.findByEmail(email).get();
+        mailMessage.setFrom("tairovasan11@gmail.com");
+        mailMessage.setSubject("Peaksoft Moscow java");
+        mailMessage.setText(result);
+        mailMessage.setTo(user.getEmail());
+        emailSender.send(mailMessage);
+    }
 }
