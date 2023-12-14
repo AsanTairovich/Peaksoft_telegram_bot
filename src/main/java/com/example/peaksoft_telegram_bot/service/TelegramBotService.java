@@ -36,7 +36,6 @@ import java.util.Random;
 @Component
 @Slf4j
 public class TelegramBotService extends TelegramLongPollingBot {
-
     private final TelegramBotConfig telegramBotConfig;
     private final UserService userService;
     private final TestRepository testRepository;
