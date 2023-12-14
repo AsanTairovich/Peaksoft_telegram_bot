@@ -417,6 +417,150 @@ VALUES ('SQLQuestion', 'Какие операции входят в DDL?', 'ALTE
 ','EntityGraph
 ','HibernateSpecificMapping
 ','@Fetch(value = FetchMode.SUBSELECT)
-',5);
+',5),
+
+('Spring Question','Что такое IoC контейнер?','ApplicationContext
+','Dependency Injection
+','Inversion of Control
+','Factory
+',4),
+('Spring Question','Выберите наследников ApplicationContext...','AnnotationConfigApplicationContext
+','XmlBeanFactory
+','BeanFactory
+','@Configuration
+',4),
+('Spring Question','Какие аннотации являются алиасами @Component?','@Controller
+','@RestController
+','@Inject
+','@Lookup
+',4),
+('Spring Question','Аннотация @Bean...','Указывается уже реализованного сторонней библиотекой класса
+','Используется для указания класса, написанного программистом
+','Ставиться над классом
+','Правильный ответ нету',4),
+('Spring Question','Какая аннотация может заменить @Autowired?','@Qualifier
+','@Lookup
+','@Service
+','@Resource
+',4),
+('Spring Question','Можно ли вставить бин в статическое поле?','Нет
+','Да','Честно, не знаю
+','Правильный ответ нету',4),
+('Spring Question','Выберите бин скоупы (bean scope) ...','Application
+','Response
+','Builder
+','Demo
+',4),
+('Spring Question','Если присутствуют аннотации @Qualifier и @Primary какой из них будет иметь приоритет?','@Qualifier
+','@Primary
+','Честно, не знаю
+','@Proxy
+',4),
+('Spring Question','Аннотация @Profile ...','Позволяет нам относить наши бины к разным профилям
+','Позволяет внедрит все бины подходящие по типу в любую структуру данных
+','Позволяет указать в качестве аргумента имя конкретного бина, который следует внедрить
+','Позволяет отдавать предпочтение бину, когда есть несколько бинов одного типа
+',4),
+('Spring Question','Как заинжектить примитив?','@Value
+','@Autowired
+','@Qualifier
+','@Order
+',4),
+('Spring Question','Как заинжектить коллекцию?','@Autowired
+','@Value
+','@Order
+','@Qualifier
+',4),
+('Spring Question','Для того чтобы Spring знал где искать конфигурационные классы какую аннотация мы используем?','@ComponentScan
+','@Component
+','@Configuration
+','@Transactional
+',4),
+('Spring Question','Для работы с транзакциями Spring Framework использует что?','AOP-proxy
+','Init-method
+','Destroy-method
+','Factory-method
+',4),
+('Spring Question','Из чего состоит аннотация @RestController?','@ResponseBody + @Controller
+','@ResponseBody + @RequestMapping
+','@RequestMapping + @Controller
+','@RequestPart + @RequestParam
+',4),
+('Spring Question','Все запросы обрабатываются каким обработчиком?','DispatcherServlet
+','WebApplicationContext
+','ServletContext
+','ApplicationContext
+',4),
+('Spring Question','Можно ли передать в запросе один и тот же параметр несколько раз?','Да
+','Честно, не знаю
+','Нет
+','Правильный ответ нету',4),
+('Spring Question','Что является самым фундаментальным в Spring Security?','SecurityContextHolder
+','Authentication
+','UserDetails
+','GrantedAuthority
+',4),
+('Spring Question','Выберите алиасы @SpringBootApplication?','@EnableAutoConfiguration
+','@EnableWebSecurity
+','@ConfigurationProperties
+','@PreDestroy
+',4),
+('Spring Question','В Spring Boot какой класс/интерфейс импортирует все конфигурации?','AutoConfigurationImportSelector
+','Configuration
+','Component
+','ResourceLoader
+',4),
+('Spring Question','Нововведения Spring 5 ...','Поддержка JUnit 5
+','Кодировщик/декодировщик
+','Потоки для работы с коллекциями
+','Функциональные интерфейсы
+',4),
+('Spring Question','Логика при регистрации бинов управляется какой аннотацией?','@ConditionalOn*
+','@Optional
+','@Component
+','@Configuration
+',4),
+('Spring Question','Как вернуть ответ со своим статусом (например 312)?','return ResponseEntity.status(312)
+','return ResponseParam.status(312)
+','return ResponseBody.status(312)
+','return ResponsePart.status(312)
+',4),
+('Spring Question','Если мы хотим создать метод-заглушку то какой аннотацией его помечаем?','@Lookup
+','@Conditional
+','@Bean
+','@Inject
+',4),
+('Spring Question','Проверка подлинности пользователя путём сравнения введённого им пароля с паролем, сохраненным в БД это?','Aутентификация
+','Авторизация
+','Идентификация
+','Регистрация
+',4),
+('Spring Question','Мы можем создавать сами spring-boot-starter-* пакеты в pom.xml?','Да, можем создавать сами
+','Нет, нужно скачать с сайта maven.repositories
+','Честно, не знаю
+','Правильный ответ нету',4),
+('Spring Question','В Spring MVC все действия происходят через что?','DispatcherServlet
+','Controller
+','View
+','Model
+',4),
+('Spring Question','Веб-приложение может определять любое количество DispatcherServlet-ов?','Да, может
+','Нет, не может
+','Честно, не знаю
+','Правильный ответ нету',4),
+('Spring Question','Что создает бины?','BeanFactory
+','BeanDefinination
+','BeanFactoryPostProcessor
+','FactoryBean
+',4),
+('Spring Question','Что хранит в себе информацию о бине?','BeanDefinition
+','BeanFactory
+','ConfigurationClassPostProcessor
+','BeanFactoryPostProcessor
+',4),
+('Spring Question','Метод с аннотацией @PostConstruct или @PreDestroy могут быть static?','Нет
+','@PostConstruct может
+','@PreDestroy нет
+','Да',4);
 
 
