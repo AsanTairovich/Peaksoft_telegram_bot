@@ -17,33 +17,31 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public String registerUser(String userEmail, String userName) {
+    public String registerUser(String userName) {
+        User user = new User();
+        addQuestion(user);
+        user.setUserName(userName);
+        userRepository.save(user);
 
+        return "Вам нужно отправить электронное почту, чтобы получить результат теста!";
+    }
+
+    public String a(String userEmail, String userName) {
         Optional<User> user1 = Optional.ofNullable(userRepository.findByEmail(userEmail)).get();
-        Optional<User> user2 = Optional.ofNullable(userRepository.findByUserName(userName)).get();
+        User user = userRepository.findByUserName(userName).get();
 
         if (!emailValidation(userEmail).equals("good")) {
-            return "Email is not correct \n" +
-                    "Электронная почта не правильно";
+            return "Электронная почта не правильно";
         } else if (user1.isPresent()) {
-            return "User with this mail already exists in the database\n" + "" +
-                    "Пользователь с этой почтой уже существует в базе данных";
-        } else if (user2.isPresent()) {
-            return "Пользователь с этой имя >>" + userName + "<< уже существует в базе данных";
-
-        } else if (userEmail.contains("@")) {
-            User user = new User();
-            addQuestion(user);
-            user.setUserName(userName);
+            return "Пользователь с этой почтой уже существует в базе данных";
+        } else {
             user.setEmail(userEmail);
             userRepository.save(user);
-            return "Успешно зарегистрирован" + "\n" +
-                    "Вы готовы пройти тест, что бы проверить свои знаний.\n" +
-                    "Если готов нажмите >> /test <<";
+            return "";
         }
-        return "!";
     }
-    public void addQuestion(User user){
+
+    public void addQuestion(User user) {
         List<Result> resultList = new ArrayList<>();
         Result javaCore1 = new Result();
         Result javaCore2 = new Result();

@@ -15,15 +15,16 @@ public class EmailService {
     private final JavaMailSender emailSender;
     private final UserRepository userRepository;
 
-    public void sendSimpleMessage(int stringPinCode, String email) {
+    public void sendSimpleMessage(int stringPinCode, String email, String userName) {
+        User user = userRepository.findByUserName(userName).get();
         SimpleMailMessage message = new SimpleMailMessage();
         String pinCode = String.valueOf(stringPinCode);
         message.setFrom("tairovasan11@gmail.com");
         message.setSubject("Peaksoft Moscow java ");
         message.setText(pinCode);
-        User user = userRepository.findByEmail(email).get();
-        message.setTo(user.getEmail());
+        message.setTo(email);
         user.setPin(stringPinCode);
+        user.setEmail(email);
         user.setPinExpiration(LocalDateTime.now().plusMinutes(10));
         userRepository.save(user);
         emailSender.send(message);

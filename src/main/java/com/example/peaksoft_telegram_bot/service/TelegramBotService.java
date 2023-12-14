@@ -25,6 +25,8 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMar
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,9 +54,9 @@ public class TelegramBotService extends TelegramLongPollingBot {
 
     private static boolean isRegistered = false;
 
-    public TelegramBotService(TelegramBotConfig telegramBotConfig, EmailService emailService,UserService userService,
+    public TelegramBotService(TelegramBotConfig telegramBotConfig, EmailService emailService, UserService userService,
                               TestRepository testRepository, UserRepository userRepository,
-                              ResultRepository resultRepository ) {
+                              ResultRepository resultRepository) {
         this.telegramBotConfig = telegramBotConfig;
         this.emailService = emailService;
         this.userService = userService;
@@ -84,15 +86,18 @@ public class TelegramBotService extends TelegramLongPollingBot {
             long chatId = update.getMessage().getChatId();
             ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
 
-            if (messageText.equals("/start")){
+            if (messageText.equals("/start")) {
+                try {
+                    photo(chatId);
+                } catch (MalformedURLException e) {
+                    throw new RuntimeException(e);
+                }
                 startCommandReceived(chatId, update.getMessage().getChat().getFirstName());
             } else if (messageText.equals("/register")) {
-                userRegister(chatId);
-            } else if (messageText.contains("@")) {
                 saveUser(chatId, update);
+            } else if (messageText.contains("@")) {
                 isRegistered = true;
-                // Блок проверка пинкода
-                emailService.sendSimpleMessage(new Random().nextInt(1000, 9999), messageText);
+                emailService.sendSimpleMessage(new Random().nextInt(1000, 9999), messageText, update.getMessage().getChat().getUserName());
                 sendTextToUser(chatId, Emojis.EARTH_ASIA + " На ваш мейл выслан пинкод!\nПинкод жазыныз");
             } else if (isRegistered && (messageText.length() == 4 && StringUtils.isNumeric(messageText))) {
                 registrationConfirm(Integer.parseInt(messageText), update.getMessage().getChat().getUserName(), chatId);
@@ -119,10 +124,10 @@ public class TelegramBotService extends TelegramLongPollingBot {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
         String res = Emojis.TROPHY + " результат вашего теста : " +
-                user.getResultList().get(0).getQuestionName() + " -> " + user.getResultList().get(0).getResultQuestion() +"  "+ Emojis.COMPUTER +
-                user.getResultList().get(1).getQuestionName() + " -> " + user.getResultList().get(1).getResultQuestion() +"  "+ Emojis.COMPUTER +
-                user.getResultList().get(2).getQuestionName() + " -> " + user.getResultList().get(2).getResultQuestion() +"  "+ Emojis.COMPUTER +
-                user.getResultList().get(3).getQuestionName() + " -> " + user.getResultList().get(3).getResultQuestion() +"  "+ Emojis.COMPUTER +
+                user.getResultList().get(0).getQuestionName() + " -> " + user.getResultList().get(0).getResultQuestion() + "  " + Emojis.COMPUTER +
+                user.getResultList().get(1).getQuestionName() + " -> " + user.getResultList().get(1).getResultQuestion() + "  " + Emojis.COMPUTER +
+                user.getResultList().get(2).getQuestionName() + " -> " + user.getResultList().get(2).getResultQuestion() + "  " + Emojis.COMPUTER +
+                user.getResultList().get(3).getQuestionName() + " -> " + user.getResultList().get(3).getResultQuestion() + "  " + Emojis.COMPUTER +
                 user.getResultList().get(4).getQuestionName() + " -> " + user.getResultList().get(4).getResultQuestion();
 
         emailService.sendResult(res, user.getEmail());
@@ -130,6 +135,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
 
     public void stopTest(Long chatId, String userName, ReplyKeyboardMarkup replyKeyboardMarkup) {
         User user = userRepository.findByUserName(userName).get();
+        Test test = testRepository.findByName(user.getQuestionName()).get();
         SendMessage sendmessage = new SendMessage();
         sendmessage.setChatId(chatId);
         sendmessage.setParseMode(ParseMode.MARKDOWN);
@@ -140,8 +146,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
                 result = user.getResultList().get(i);
             }
         }
-
-        sendmessage.setText(" \uD83E\uDD73 " + Emojis.TROPHY + " Сиздин упайыныз -> " + result.getResultQuestion() + "\uD83C\uDDF0\uD83C\uDDEC");
+        sendmessage.setText(resultText(result, test));
         user.setCount(0);
         user.setRandom(0);
         user.setTestResult(0);
@@ -161,6 +166,15 @@ public class TelegramBotService extends TelegramLongPollingBot {
             execute(sendmessage);
         } catch (TelegramApiException e) {
             log.error("Error occurred: " + e.getMessage());
+        }
+    }
+
+    public String resultText(Result result, Test test) {
+        int sum = test.getQuestionList().size() * 10 - 50;
+        if (result.getResultQuestion() >= sum) {
+            return "\\uD83E\\uDD73 " + Emojis.TROPHY + " Сиздин упайыныз -> " + result.getResultQuestion() + "\\uD83C\\uDDF0\\uD83C\\uDDEC";
+        } else {
+            return "Сиздин упайыныз -> " + result.getResultQuestion() + " Сиз даярданып кайра тапшырыныз";
         }
     }
 
@@ -237,10 +251,10 @@ public class TelegramBotService extends TelegramLongPollingBot {
 
             } else {
                 if (user.getCount() == test.getQuestionList().size()) {
-                    stopTest(chatId, user.getUserName(),replyKeyboardMarkup);
+                    stopTest(chatId, user.getUserName(), replyKeyboardMarkup);
                 }
             }
-        }else {
+        } else {
             sendmessage.setText(Emojis.EARTH_ASIA + " сиз мурдагы тестен балыныз аз болду кайра тапшырыныз");
         }
 
@@ -402,24 +416,22 @@ public class TelegramBotService extends TelegramLongPollingBot {
     }
 
     public void saveUser(Long chatId, Update update) {
-        sendTextToUser(chatId, userService.registerUser(update.getMessage().getText(),
-                update.getMessage().getChat().getUserName()));
+        sendTextToUser(chatId, userService.registerUser(update.getMessage().getChat().getUserName()));
     }
 
     public void startCommandReceived(Long chatId, String name) {
-        String answer = Emojis.COMPUTER + " Hi,\uD83C\uDDF0\uD83C\uDDEC " + name + Emojis.EARTH_ASIA + ", Таанышканыма кубанычтамын!" +
-                "Бул бот Java программалоо тили боюнча оз билимин текшеруу учун тузулгон.\n" +
+        String answer = Emojis.EARTH_ASIA + " Здравствуйте, " + name + "  мы рады видеть вас наш Телеграм боте «Peaksoft Moscow». Мы приготовили для вас этот бот, чтобы проверить свои знаний." +
                 " Нажмите >> /register << ";
         log.info("Replied t user " + name);
         sendTextToUser(chatId, answer);
     }
 
-    public void photo(Long chatId ) {
-        InputFile inputFile = new InputFile();
-        inputFile.setMedia("/docs/img_telegram-bot.jpeg");
+    public void photo(Long chatId ) throws MalformedURLException {
+        URL url = new URL("https://yt3.googleusercontent.com/ZUIzEd1QgUNZV9wEkj6neqXVRxE7qf7s2py--veKssv4HVRrG8Zs89rJqnd22D8MKp0WWFtvcQ=s900-c-k-c0x00ffffff-no-rj");
+        InputFile photo = new InputFile(String.valueOf(url));
         SendPhoto sendPhoto = new SendPhoto();
         sendPhoto.setChatId(chatId);
-        sendPhoto.setPhoto(inputFile);
+        sendPhoto.setPhoto(photo);
         sendPhoto.setCaption(" ваш фото");
         try {
             execute(sendPhoto);
@@ -443,7 +455,9 @@ public class TelegramBotService extends TelegramLongPollingBot {
         if (Objects.equals(user.getPin(), pin) && user.getPinExpiration().isAfter(LocalDateTime.now())) {
             user.setEmailActive(true);
             user.setPin(0);
-            outText = Emojis.EARTH_ASIA + " Email is activated!";
+            outText = "Успешно зарегистрирован" + "\n" +
+                    "Вы готовы пройти тест, что бы проверить свои знаний.\n" +
+                    "Если готов нажмите >> /test <<";
         } else {
             outText = Emojis.EARTH_ASIA + " Pin is not correct or pin expired!\n Кайра регистрация кылсаз болот!";
         }
