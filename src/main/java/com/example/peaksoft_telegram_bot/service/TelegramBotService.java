@@ -173,7 +173,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
         if (result.getResultQuestion() >= sum) {
             return "\\uD83E\\uDD73 " + Emojis.TROPHY + " Ваш результат равен : -> " + result.getResultQuestion() + "очков" + "\\uD83C\\uDDF0\\uD83C\\uDDEC";
         } else {
-            return " Ваш результат равен : -> " + result.getResultQuestion() + "очков" + "\n Есть возможность пересдать заново!";
+            return " Ваш результат равен : -> " + result.getResultQuestion() + "очков" + "\n Всегда есть возможность сдать заново!";
         }
     }
 
@@ -419,8 +419,8 @@ public class TelegramBotService extends TelegramLongPollingBot {
     }
 
     public void startCommandReceived(Long chatId, String name) {
-        String answer = Emojis.COMPUTER + name + ", добро пожаловать, мы рады видеть вас на странице Peaksoft Java Test. " +
-                " Нажмите >> /register << ";
+        String answer = Emojis.COMPUTER + name + ", добро пожаловать, мы рады видеть вас на странице Peaksoft Java Test, \n проверьте свои знание и нажмите " +
+                ">> /register << ";
         log.info("Replied t user " + name);
         sendTextToUser(chatId, answer);
     }
