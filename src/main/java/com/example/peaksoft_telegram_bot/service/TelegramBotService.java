@@ -52,6 +52,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
     static final String WRONG = "НЕПРАВИЛЬНЫЙ " + "❌";
 
     private static boolean isRegistered = false;
+    List<BotCommand> listOfCommands = new ArrayList<>();
 
     public TelegramBotService(TelegramBotConfig telegramBotConfig, EmailService emailService, UserService userService,
                               TestRepository testRepository, UserRepository userRepository,
@@ -63,12 +64,11 @@ public class TelegramBotService extends TelegramLongPollingBot {
         this.userRepository = userRepository;
         this.resultRepository = resultRepository;
 
-        List<BotCommand> listOfCommands = new ArrayList<>();
+
         listOfCommands.add(new BotCommand("/start", "get a welcome message!"));
         listOfCommands.add(new BotCommand("/register", " you this register!"));
         listOfCommands.add(new BotCommand("/help", "info how to use this bot!"));
         listOfCommands.add(new BotCommand("/test", "test "));
-        listOfCommands.add(new BotCommand("/delete", "delete user! "));
         listOfCommands.add(new BotCommand("/result", "get the result!"));
         try {
             this.execute(new SetMyCommands(listOfCommands, new BotCommandScopeDefault(), null));
@@ -112,6 +112,12 @@ public class TelegramBotService extends TelegramLongPollingBot {
             } else if (messageText.equals("/result")) {
                 result(chatId, update.getMessage().getChat().getUserName());
                 sendTextToUser(chatId, Emojis.EARTH_ASIA + " на ваш email выслан результат теста");
+            } else if (messageText.equals("deleteUser")) {
+                deleteUser(chatId, update.getMessage().getChat().getUserName());
+            } else if (messageText.equals("resultHigher")) {
+                resultHigher(chatId);
+            } else if (messageText.equals("countUser")) {
+                sendTextToUser(chatId, countUser());
             } else {
                 sendTextToUser(chatId, Emojis.EARTH_ASIA + " ❌ Бот не принимает это слово ❌");
             }
@@ -130,6 +136,21 @@ public class TelegramBotService extends TelegramLongPollingBot {
                 user.getResultList().get(4).getQuestionName() + " -> " + user.getResultList().get(4).getResultQuestion();
 
         emailService.sendResult(res, user.getEmail());
+    }
+    public String  countUser(){
+        long userCount = userRepository.count();
+        return "Количество ползователей этого бота -> "+ userCount;
+    }
+
+    public void resultHigher(Long chatId) {
+        List<Result> resultList = resultRepository.findByResult(300);
+        if (resultList.isEmpty()) {
+            sendTextToUser(chatId, "Список пользователей пуст.");
+        } else {
+            for (Result result : resultList) {
+                sendTextToUser(chatId, String.valueOf(result));
+            }
+        }
     }
 
     public void stopTest(Long chatId, String userName, ReplyKeyboardMarkup replyKeyboardMarkup) {
@@ -425,7 +446,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
         sendTextToUser(chatId, answer);
     }
 
-    public void photo(Long chatId ) throws MalformedURLException {
+    public void photo(Long chatId) throws MalformedURLException {
         URL url = new URL("https://yt3.googleusercontent.com/ZUIzEd1QgUNZV9wEkj6neqXVRxE7qf7s2py--veKssv4HVRrG8Zs89rJqnd22D8MKp0WWFtvcQ=s900-c-k-c0x00ffffff-no-rj");
         InputFile photo = new InputFile(String.valueOf(url));
         SendPhoto sendPhoto = new SendPhoto();
