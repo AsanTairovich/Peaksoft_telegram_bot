@@ -23,7 +23,7 @@ public class UserService {
         user.setUserName(userName);
         userRepository.save(user);
 
-        return "Вам нужно отправить электронное почту, чтобы получить результат теста!";
+        return "Необходимо указать электронную почту!";
     }
 
     public String a(String userEmail, String userName) {
@@ -31,7 +31,7 @@ public class UserService {
         User user = userRepository.findByUserName(userName).get();
 
         if (!emailValidation(userEmail).equals("good")) {
-            return "Электронная почта не правильно";
+            return "Неправильная электронная почта ";
         } else if (user1.isPresent()) {
             return "Пользователь с этой почтой уже существует в базе данных";
         } else {
