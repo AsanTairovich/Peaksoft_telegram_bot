@@ -31,7 +31,7 @@ public class EmailService {
     }
     public void sendResult(String result, String email){
         SimpleMailMessage mailMessage =new SimpleMailMessage();
-        User user  = userRepository.findByEmail(email).get();
+        User user  = userRepository.findByEmail(email);
         mailMessage.setFrom("tairovasan11@gmail.com");
         mailMessage.setSubject("Peaksoft Moscow java");
         mailMessage.setText(result);

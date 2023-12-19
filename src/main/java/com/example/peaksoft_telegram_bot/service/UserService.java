@@ -35,7 +35,7 @@ public class UserService {
     }
 
     public String register(String userEmail, String userName) {
-        Optional<User> user1 = Optional.ofNullable(userRepository.findByEmail(userEmail)).get();
+        Optional<User> user1 = Optional.ofNullable(userRepository.findByEmail(userEmail));
 
         if (!emailValidation(userEmail).equals("good")) {
             return "Неправильная электронная почта ";
