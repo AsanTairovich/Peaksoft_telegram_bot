@@ -2,42 +2,48 @@ package com.example.peaksoft_telegram_bot.service;
 
 import com.example.peaksoft_telegram_bot.model.entity.Result;
 import com.example.peaksoft_telegram_bot.model.entity.User;
+import com.example.peaksoft_telegram_bot.model.enums.Emojis;
 import com.example.peaksoft_telegram_bot.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final EmailService emailService;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, EmailService emailService) {
         this.userRepository = userRepository;
+        this.emailService = emailService;
     }
 
     public String registerUser(String userName) {
-        User user = new User();
-        addQuestion(user);
-        user.setUserName(userName);
-        userRepository.save(user);
-
-        return "Необходимо указать электронную почту!";
+        Optional<User> user2 = Optional.ofNullable(userRepository.findByUserName(userName));
+        if (user2.isPresent()){
+            return "Пользователь с этой -> "+userName+" именам уже существует в базе данных";
+        }else {
+            User user = new User();
+            addQuestion(user);
+            user.setUserName(userName);
+            userRepository.save(user);
+            return "Необходимо указать электронную почту!";
+        }
     }
 
-    public String a(String userEmail, String userName) {
+    public String register(String userEmail, String userName) {
         Optional<User> user1 = Optional.ofNullable(userRepository.findByEmail(userEmail)).get();
-        User user = userRepository.findByUserName(userName).get();
 
         if (!emailValidation(userEmail).equals("good")) {
             return "Неправильная электронная почта ";
         } else if (user1.isPresent()) {
             return "Пользователь с этой почтой уже существует в базе данных";
         } else {
-            user.setEmail(userEmail);
-            userRepository.save(user);
-            return "";
+            emailService.sendSimpleMessage(new Random().nextInt(1000, 9999), userEmail, userName );
+            return Emojis.EARTH_ASIA + " На ваш email выслан пинкод! ⬆️\n  напишите пинкод ⬇️";
         }
     }
 

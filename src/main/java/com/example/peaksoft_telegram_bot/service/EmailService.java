@@ -16,7 +16,7 @@ public class EmailService {
     private final UserRepository userRepository;
 
     public void sendSimpleMessage(int stringPinCode, String email, String userName) {
-        User user = userRepository.findByUserName(userName).get();
+        User user = userRepository.findByUserName(userName);
         SimpleMailMessage message = new SimpleMailMessage();
         String pinCode = String.valueOf(stringPinCode);
         message.setFrom("tairovasan11@gmail.com");
