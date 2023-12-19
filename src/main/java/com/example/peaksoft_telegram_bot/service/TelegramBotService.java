@@ -45,9 +45,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
     static final String option = "A B C D";
     static final String RIGHT = "ПРАВИЛЬНО " + "✅";
     static final String WRONG = "НЕПРАВИЛЬНЫЙ " + "❌";
-
     private static boolean isRegistered = false;
-    List<BotCommand> listOfCommands = new ArrayList<>();
 
     public TelegramBotService(TelegramBotConfig telegramBotConfig, EmailService emailService, UserService userService,
                               TestRepository testRepository, UserRepository userRepository,
@@ -59,7 +57,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
         this.userRepository = userRepository;
         this.resultRepository = resultRepository;
 
-
+        List<BotCommand> listOfCommands = new ArrayList<>();
         listOfCommands.add(new BotCommand("/start", "get a welcome message!"));
         listOfCommands.add(new BotCommand("/register", " you this register!"));
         listOfCommands.add(new BotCommand("/result", "get the result!"));
@@ -149,7 +147,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
 
     public void stopTest(Long chatId, String userName, ReplyKeyboardMarkup replyKeyboardMarkup) {
         User user = userRepository.findByUserName(userName);
-        Test test = testRepository.findByName(user.getQuestionName()).get();
+        Test test = testRepository.findByName(user.getQuestionName());
         SendMessage sendmessage = new SendMessage();
         sendmessage.setChatId(chatId);
         sendmessage.setParseMode(ParseMode.MARKDOWN);
@@ -247,7 +245,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
         Test test;
 
         if (testQuestion(user)) {
-            test = testRepository.findByName(user.getQuestionName()).get();
+            test = testRepository.findByName(user.getQuestionName());
 
             if (user.getRandom() >= 1) {
                 testExamination(chatId, user, test, messageText);
@@ -425,10 +423,6 @@ public class TelegramBotService extends TelegramLongPollingBot {
         return telegramBotConfig.getToken();
     }
 
-    public void userRegister(Long chatId) {
-        sendTextToUser(chatId, Emojis.COMPUTER + " Напишите вашу электронную почту");
-    }
-
     public void saveUser(Long chatId, Update update) {
         sendTextToUser(chatId, userService.registerUser(update.getMessage().getChat().getFirstName()));
     }
@@ -468,9 +462,10 @@ public class TelegramBotService extends TelegramLongPollingBot {
         if (Objects.equals(user.getPin(), pin) && user.getPinExpiration().isAfter(LocalDateTime.now())) {
             user.setEmailActive(true);
             user.setPin(0);
-            outText = "email успешно зарегистрирован!" + "\n" +
-                    "Если вы готовы проверить свои знания и пройти тест , нажмите  ниже\n" +
-                    ">> /test <<";
+            outText = """
+                    email успешно зарегистрирован!
+                    Если вы готовы проверить свои знания и пройти тест , нажмите  ниже
+                    >> /test <<""";
         } else {
             outText = Emojis.EARTH_ASIA + " Pin is not correct or pin expired!\n Пройдите регистрацию заново!";
         }
