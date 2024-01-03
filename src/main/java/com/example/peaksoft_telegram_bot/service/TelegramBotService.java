@@ -28,10 +28,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 
 @Component
 @Slf4j
@@ -101,7 +98,6 @@ public class TelegramBotService extends TelegramLongPollingBot {
                 stopTest(chatId, update.getMessage().getChat().getFirstName(), replyKeyboardMarkup);
             } else if (messageText.equals("/result")) {
                 result(chatId, update.getMessage().getChat().getFirstName());
-                sendTextToUser(chatId, Emojis.EARTH_ASIA + " на ваш email выслан результат теста");
             } else if (messageText.equals("deleteUser")) {
                 deleteUser(chatId, update.getMessage().getChat().getFirstName());
             } else if (messageText.equals("resultHigher")) {
@@ -115,17 +111,25 @@ public class TelegramBotService extends TelegramLongPollingBot {
     }
 
     public void result(Long chatId, String userName) {
-        User user = userRepository.findByUserName(userName);
-        SendMessage message = new SendMessage();
-        message.setChatId(chatId);
-        String res = Emojis.TROPHY + " результат вашего теста : " +
-                user.getResultList().get(0).getQuestionName() + " -> " + user.getResultList().get(0).getResultQuestion() + "  " + Emojis.COMPUTER + "\n" +
-                user.getResultList().get(1).getQuestionName() + " -> " + user.getResultList().get(1).getResultQuestion() + "  " + Emojis.COMPUTER + "\n" +
-                user.getResultList().get(2).getQuestionName() + " -> " + user.getResultList().get(2).getResultQuestion() + "  " + Emojis.COMPUTER + "\n" +
-                user.getResultList().get(3).getQuestionName() + " -> " + user.getResultList().get(3).getResultQuestion() + "  " + Emojis.COMPUTER + "\n" +
-                user.getResultList().get(4).getQuestionName() + " -> " + user.getResultList().get(4).getResultQuestion();
+        Optional<User> user1 = Optional.ofNullable(userRepository.findByUserName(userName));
 
-        emailService.sendResult(res, user.getEmail());
+        if (user1.isPresent()) {
+            User user = userRepository.findByUserName(userName);
+            if (user.getEmail() != null) {
+                String res = Emojis.TROPHY + " результат вашего теста : \n" +
+                        user.getResultList().get(0).getQuestionName() + " -> " + user.getResultList().get(0).getResultQuestion() + "  " + Emojis.COMPUTER + "\n" +
+                        user.getResultList().get(1).getQuestionName() + " -> " + user.getResultList().get(1).getResultQuestion() + "  " + Emojis.COMPUTER + "\n" +
+                        user.getResultList().get(2).getQuestionName() + " -> " + user.getResultList().get(2).getResultQuestion() + "  " + Emojis.COMPUTER + "\n" +
+                        user.getResultList().get(3).getQuestionName() + " -> " + user.getResultList().get(3).getResultQuestion() + "  " + Emojis.COMPUTER + "\n" +
+                        user.getResultList().get(4).getQuestionName() + " -> " + user.getResultList().get(4).getResultQuestion()+ "  " + Emojis.COMPUTER;
+                emailService.sendResult(res, user.getEmail());
+                sendTextToUser(chatId, Emojis.EARTH_ASIA + " на ваш email выслан результат теста");
+            } else {
+                sendTextToUser(chatId, "Ваш электронной почты не зарегистирирован!");
+            }
+        } else {
+            sendTextToUser(chatId, "Ваш электронной почты не зарегистирирован!");
+        }
     }
 
     public String countUser() {
